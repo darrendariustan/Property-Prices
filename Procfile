@@ -1,0 +1,1 @@
+web: streamlit run apartment_price_estimator.py --server.port=$PORT --server.address=0.0.0.0 
