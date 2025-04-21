@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 import numpy as np
+import os
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -8,20 +9,30 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 print("Loading data...")
-# Load Data with correct dtype handling
-FILE_URL = "french_real_estate_sales_raw.csv"
-df = pd.read_csv(FILE_URL, dtype={'code_postal': str}, low_memory=False)
-
-# Filter valid data
-df = df[df['latitude'].notna() & df['longitude'].notna()]
-df = df[(df['valeur_fonciere'] > 10000) & (df['valeur_fonciere'] < 2000000)]
-
-# Keep only relevant columns and drop missing values
-df = df[['valeur_fonciere', 'surface_reelle_bati', 'nombre_pieces_principales', 
-         'code_postal', 'nom_commune', 'adresse_nom_voie', 'type_local', 'latitude', 'longitude']].dropna()
-
-# Filter to apartments only
-df = df[df['type_local'] == 'Appartement']
+# Check if processed file exists first
+if os.path.exists("processed_apartments.csv"):
+    print("Using existing processed data...")
+    df = pd.read_csv("processed_apartments.csv", dtype={'code_postal': str})
+else:
+    print("Loading raw data...")
+    # Original loading code here
+    FILE_URL = "french_real_estate_sales_raw.csv"
+    df = pd.read_csv(FILE_URL, dtype={'code_postal': str}, low_memory=False)
+    
+    # Filter valid data
+    df = df[df['latitude'].notna() & df['longitude'].notna()]
+    df = df[(df['valeur_fonciere'] > 10000) & (df['valeur_fonciere'] < 2000000)]
+    
+    # Keep only relevant columns and drop missing values
+    df = df[['valeur_fonciere', 'surface_reelle_bati', 'nombre_pieces_principales', 
+             'code_postal', 'nom_commune', 'adresse_nom_voie', 'type_local', 'latitude', 'longitude']].dropna()
+    
+    # Filter to apartments only
+    df = df[df['type_local'] == 'Appartement']
+    
+    # Save processed dataset for future use
+    print("Saving processed dataset...")
+    df.to_csv("processed_apartments.csv", index=False)
 
 print("Training model...")
 # Create feature matrix X and target vector y
@@ -58,9 +69,5 @@ print("Saving model to pickle file...")
 # Save model to pickle file
 with open("house_price_model.pkl", "wb") as f:
     pickle.dump(pipe_rf, f)
-
-# Also save a smaller version of the dataset for faster loading in the app
-print("Saving processed dataset...")
-df.to_csv("processed_apartments.csv", index=False)
 
 print("Done! Model and processed dataset saved successfully.") 
