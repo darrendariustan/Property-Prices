@@ -4,7 +4,7 @@ A Streamlit web application for analyzing French apartment prices. This interact
 
 ## Live Demo
 
-The application is deployed and can be accessed at: [Apartment Price Estimator](https://your-render-url-here.onrender.com)
+The application is deployed and can be accessed at: [Apartment Price Estimator](https://paris-property-price.onrender.com/)
 
 ## Features
 
